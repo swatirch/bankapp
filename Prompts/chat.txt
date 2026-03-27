@@ -1,0 +1,205 @@
+i'll give one zip another account claude helping me make a bank application as 
+Start the project and learn in parallel — especially with TDD, because it's a practice-first skill. Reading about it rarely clicks until you're doing it.
+That said, a tiny bit of upfront context helps. Here's the sweet spot:
+Learn just enough before starting (~1–2 hours):
+What TDD is: Red → Green → Refactor cycle
+How to write a basic test in your chosen language/framework (just one example)
+Project structure basics
+Everything else — learn as you build:
+Edge cases in testing (you'll hit them naturally)
+Mocking, dependency injection, test isolation
+Banking domain concepts (accounts, transactions, etc.)
+The project itself will teach you TDD better than any tutorial, because you'll feel the pain points and benefits firsthand.
+
+
+To get us started, let me know a few things:
+Q: Which language/stack do you want to use? A: Java
+Q: What's your current experience level? A: Intermediate
+Q: Which banking features should we build? (Select all that apply) A: [No preference]
+11:25 AM
+Perfect — Java + intermediate level is a great combo for TDD. We'll use JUnit 5 + Mockito as the testing stack, and Maven for the project structure.
+Since you have no preference on features, we'll build a solid, realistic banking app covering all four areas progressively:
+Our build order:
+Account Management — create account, deposit, withdraw (core domain)
+Transfers — between accounts (introduces dependencies/mocking)
+Transaction History — audit trail (data modeling)
+Interest & Loans — calculations (business logic complexity)
+
+
+Our TDD Rhythm (we'll follow this strictly):
+🔴 RED   → Write a failing test first
+🟢 GREEN  → Write minimal code to pass it
+🔵 REFACTOR → Clean up, no new behavior
+
+
+Let's write our very first test — before any implementation.
+The first feature
+Claude's response was interrupted
+Retry
+pdf
+see i want to learn everything mentiones in infosys experience to get a good job
+11:26 AM
+Great context, Swarupa! Looking at your resume, you already have this experience — you've done JUnit/Mockito, Spring Boot microservices, REST APIs, the whole stack at Infosys.
+So the real question is: are you looking to deepen these skills to perform better in interviews, or is something else going on?
+this is not my resume i just want to build the project which uses all the things from scratch and want to why i'm doing what i'm doing
+11:27 AM
+2 / 2
+Got it! You want to build with deep understanding — not just copy-paste code, but know the why behind every decision. That's the best way to learn.
+So we'll build this banking app where at every step I'll explain:
+Why we write the test first
+Why we structure code this way
+Why this design pattern here
+Why this Spring Boot config
+
+
+Let's start from absolute zero. First, let's set up the project structure.
+i want you to teach how to architect project how configure it, how to do tdd driven dev , how services communicaticate , how kafka will solve the problem u know wvery how and why
+12:27 PM
+Now we're talking! This is a full engineering education disguised as a project. Here's exactly what we'll build and learn:
+🏗️ The Complete Roadmap
+Phase 1: Domain + TDD Foundation
+  → Pure Java, no frameworks
+  → Learn: OOP design, TDD red-green-refactor, clean architecture
+
+Phase 2: Spring Boot + REST APIs  
+  → Wrap domain in Spring
+  → Learn: IoC/DI, why beans exist, REST design, exception handling
+
+Phase 3: Database + JPA/Hibernate
+  → Persist data properly
+  → Learn: ORM, transactions, why @Transactional matters
+
+Phase 4: Microservices Split
+  → Break monolith into services
+  → Learn: WHY we split, what problems it creates
+
+Phase 5: Kafka
+  → Services talk async
+  → Learn: WHY Kafka, what problem it solves vs REST calls
+
+Phase 6: Security
+  → JWT + OAuth2
+  → Learn: Auth flow, why stateless
+
+Phase 7: Observability
+  → Logging, monitoring
+  → Learn: How to debug distributed systems
+We start today with Phase 1. Let's set up the project.
+Step 1 — Project Structure (the why)
+We'll use Maven because it's the industry standard for Java dependency management. Here's the structure we're building toward:
+banking-app/
+├── pom.xml
+├── src/
+│   ├── main/
+│   │   └── java/
+│   │       └── com/banking/
+│   │           ├── domain/        ← Pure business logic (no Spring here)
+│   │           │   ├── Account.java
+│   │           │   └── Transaction.java
+│   │           ├── service/       ← Use cases (what the app does)
+│   │           │   └── AccountService.java
+│   │           └── repository/    ← Data access (interface only for now)
+│   │               └── AccountRepository.java
+│   └── test/
+│       └── java/
+│           └── com/banking/
+│               └── service/
+│                   └── AccountServiceTest.java  ← We write THIS first
+Why this structure?
+domain/ has zero dependencies — it's pure Java. This is your business heart. It should never care if you're using Spring, Kafka, or MySQL.
+service/ orchestrates domain objects — it contains your use cases
+repository/ is an interface — the service doesn't know or care if data lives in MySQL, MongoDB, or memory. This is the Dependency Inversion Principle
+Step 2 — Your First TDD Cycle
+Before writing a single line of production code, we write a failing test.
+The question we ask first: What should the system DO?
+For a bank account, the very first behavior is:
+"When an account is created, the balance should be zero"
+🔴 RED — Write the failing test first:
+That's a full enterprise stack! Let's be smart about this — we'll use all of it, but introduced at the right time so you understand why each piece enters the picture.
+Here's the complete plan:
+Here's the complete picture of everything we'll build and learn, and why each technology enters at exactly the right moment:
+V
+visualize
+V
+visualize show_widget
+The key philosophy of our entire journey: every technology enters to solve a pain you've already felt. We won't add Kafka until you've felt the pain of tightly coupled services. We won't add Spring Security until your APIs are completely open and you feel the risk.
+
+
+Let's begin Phase 1 right now.
+Here's your first task — set up the Maven project. You need:
+Java 17+ installed (java -version to check)
+Maven installed (mvn -version to check)
+IntelliJ IDEA (recommended) or VS Code with Java extensions
+Create this folder structure manually or via IntelliJ's "New Project → Maven":
+banking-app/
+├── pom.xml
+└── src/
+    ├── main/java/com/banking/
+    └── test/java/com/banking/
+And this pom.xml to start:
+xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.banking</groupId>
+  <artifactId>banking-app</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <properties>
+    <java.version>17</java.version>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+  </properties>
+
+  <dependencies>
+    <!-- JUnit 5 -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.10.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Mockito -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>5.5.0</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.1.2</version>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+Once you have this set up and can run mvn test (it'll say "no tests" — that's fine), come back and we write our very first failing test together. That's when the real learning begins.
+how to create a project
+12:30 PM
+Let me walk you through it step by step. Which IDE do you have?
+Q: Which IDE are you using? A: IntelliJ IDEA
+12:30 PM
+Perfect choice — IntelliJ is the best for Java. Follow these steps:
+
+
+Step 1 — Open IntelliJ and create a new project
+Open IntelliJ IDEA
+Click "New Project" on the welcome screen
+
+
+Step 2 — Fill in the project details
+You'll see a screen like this — fill it exactly as shown:
+V
+visualize
+V
+visualize show_widget

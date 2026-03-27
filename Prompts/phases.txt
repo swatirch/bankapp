@@ -1,0 +1,25 @@
+# Banking App Progress
+
+## Roadmap:
+- Phase 1 — Domain + TDD Foundation ✅
+- Phase 2 — Spring Boot + REST APIs ✅
+- Phase 3 — Database + JPA/Hibernate ⏳ ← CURRENT
+- Phase 4 — Microservices Split
+- Phase 5 — Kafka
+- Phase 6 — Security (JWT + OAuth2)
+- Phase 7 — Observability (Logging, Monitoring)
+
+## Current Phase: Phase 3
+Replace InMemoryAccountRepository with JPA + PostgreSQL.
+Learn: @Entity, @Transactional, Spring Data JPA, ORM concepts.
+
+## Done:
+- Domain: Account, AccountType, AccountStatus, Transaction
+- Service: AccountService
+- Repository: AccountRepository (interface) + InMemoryAccountRepository
+- Controller: AccountController with full Swagger annotations
+- Exceptions: Full hierarchy with ErrorCode
+- Swagger: OpenApiConfig configured
+
+## Stack:
+- Java 17, Spring Boot 3.2.0, JUnit 5, Mockito, SpringDoc OpenAPI

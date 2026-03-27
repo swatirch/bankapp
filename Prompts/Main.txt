@@ -1,0 +1,96 @@
+I'm building a banking application from scratch using TDD approach.
+Help me continue from where I left off.
+
+TECH STACK:
+- Java 17, Spring Boot, Maven
+- JUnit 5 + Mockito for TDD
+- JPA/Hibernate, PostgreSQL (not integrated yet)
+- Swagger/OpenAPI configured
+
+PROJECT PACKAGE: com.banking
+PROJECT PATH: D:/Personal/codes/banking-app
+
+CURRENT PROJECT STRUCTURE:
+com.banking/
+├── BankingApplication.java
+├── config/
+│   └── OpenApiConfig.java
+├── controller/
+│   ├── AccountController.java
+│   └── GlobalExceptionHandler.java
+├── domain/
+│   ├── Account.java
+│   ├── AccountStatus.java (enum: ACTIVE, INACTIVE, BLOCKED)
+│   ├── AccountType.java (enum: SAVINGS, CURRENT, FIXED_DEPOSIT)
+│   ├── Transaction.java
+│   └── TransactionType.java (enum: DEPOSIT, WITHDRAWAL, TRANSFER_IN, TRANSFER_OUT)
+├── dto/
+│   ├── request/
+│   │   ├── CreateAccountRequest.java (record)
+│   │   └── AmountRequest.java (record)
+│   └── response/
+│       ├── AccountResponse.java (record)
+│       └── ErrorResponse.java (record)
+├── exception/
+│   ├── BankingException.java (base)
+│   ├── ErrorCode.java (constants)
+│   ├── AccountNotFoundException.java
+│   ├── AccountStatusException.java
+│   ├── InsufficientBalanceException.java
+│   ├── InvalidAccountException.java
+│   └── InvalidAmountException.java
+├── repository/
+│   ├── AccountRepository.java (interface)
+│   └── JpaAccountRepository.java (extends JpaRepository + AccountRepository)
+└── service/
+    └── AccountService.java
+
+TESTS WRITTEN:
+- AccountTest.java (domain layer) — @Nested with SavingsAccountTest,
+  CurrentAccountTest, FixedDepositAccountTest, AccountValidationTest
+- AccountServiceTest.java — Mockito mocks, tests createAccount,
+  deposit, withdraw, getAccount, exception cases
+- JpaAccountRepositoryTest.java — @DataJpaTest with H2
+
+WHAT WE COMPLETED:
+✅ Phase 1 — Domain objects with TDD (Account, Transaction, enums)
+✅ Phase 2 — Spring Boot + REST APIs + DTOs + GlobalExceptionHandler
+✅ Service layer with Mockito tests
+✅ Repository pattern (interface + JPA implementation)
+✅ Swagger configured
+✅ Custom exception hierarchy with ErrorCode constants
+✅ Minimum deposit rules per account type
+✅ Fixed deposit withdrawal restriction
+✅ @BeforeEach and @Nested in tests
+
+FIXES APPLIED IN LAST SESSION:
+✅ AccountNotFoundException now extends BankingException
+✅ Controller returns AccountResponse instead of Account entity
+✅ Service deposit() and withdraw() now return Account
+✅ accountRepository.save() called after deposit and withdraw
+✅ Deleted typo folder com/bvanking
+
+PENDING FIXES / NEXT STEPS:
+→ Separate JPA @Entity from domain object (Account is doing too much)
+→ Integrate PostgreSQL properly (currently using H2 for tests)
+→ Add @Transactional to service methods
+→ Add transfer between accounts feature
+→ Add @Valid and Bean Validation to DTOs (request validation)
+→ Write controller layer tests (MockMvc)
+→ Phase 4: Split into microservices
+→ Phase 5: Kafka
+→ Phase 6: JWT Security
+→ Phase 7: Docker + Jenkins CI/CD + GCP
+
+KEY DESIGN DECISIONS MADE:
+- BigDecimal for all money (never double)
+- No setters on Account — state changes only through methods
+- Custom exceptions extending BankingException with ErrorCode constants
+- Repository interface pattern for DB independence
+- DTOs as records for immutability
+- No empty account creation — initial deposit always required
+- AccountType-based minimum deposit rules
+
+IMPORTANT QUESTIONS TO DISCUSS NEXT:
+- Should Account domain object and Account JPA entity be separate classes?
+- Should we use @Transactional at service level or repository level?
