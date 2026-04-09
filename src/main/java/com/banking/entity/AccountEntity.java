@@ -35,9 +35,8 @@ public class AccountEntity {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "account_id")
-    private List<TransactionEntity> transactions = new ArrayList<>();
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    private List<TransactionEntity> transactions;
 
     // ---- JPA needs this — do not use anywhere else ----
     public AccountEntity() {}

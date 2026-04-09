@@ -211,4 +211,78 @@ class AccountTest {
             );
         }
     }
+
+    @Nested
+    class TransferTest {
+
+        private Account sender;
+        private Account receiver;
+
+        @BeforeEach
+        void setUp() {
+            sender = new Account("Alice", AccountType.SAVINGS, new BigDecimal("1000.00"));
+            receiver = new Account("Bob", AccountType.SAVINGS, new BigDecimal("500.00"));
+        }
+
+        @Test
+        void shouldDeductBalanceFromSender() {
+            sender.transferOut(new BigDecimal("200.00"));
+            assertEquals(0, new BigDecimal("800.00").compareTo(sender.getBalance()));
+        }
+
+        @Test
+        void shouldAddBalanceToReceiver() {
+            receiver.transferIn(new BigDecimal("300.00"));
+            assertEquals(0, new BigDecimal("800.00").compareTo(receiver.getBalance()));
+        }
+
+        @Test
+        void shouldRecordTransferOutTransaction() {
+            sender.transferOut(new BigDecimal("200.00"));
+            assertEquals(TransactionType.TRANSFER_OUT,
+                    sender.getTransactions().get(1).getType());
+        }
+
+        @Test
+        void shouldRecordTransferInTransaction() {
+            receiver.transferIn(new BigDecimal("300.00"));
+            assertEquals(TransactionType.TRANSFER_IN,
+                    receiver.getTransactions().get(1).getType());
+        }
+
+        @Test
+        void shouldThrowWhenInsufficientBalanceForTransfer() {
+            assertThrows(InsufficientBalanceException.class,
+                    () -> sender.transferOut(new BigDecimal("2000.00")));
+        }
+
+        @Test
+        void shouldThrowWhenSenderIsBlocked() {
+            sender.block();
+            assertThrows(AccountStatusException.class,
+                    () -> sender.transferOut(new BigDecimal("200.00")));
+        }
+
+        @Test
+        void shouldThrowWhenReceiverIsBlocked() {
+            receiver.block();
+            assertThrows(AccountStatusException.class,
+                    () -> receiver.transferIn(new BigDecimal("200.00")));
+        }
+
+        @Test
+        void shouldThrowWhenSenderIsFixedDeposit() {
+            Account fd = new Account("Alice", AccountType.FIXED_DEPOSIT, new BigDecimal("1000.00"));
+            assertThrows(AccountStatusException.class,
+                    () -> fd.transferOut(new BigDecimal("200.00")));
+        }
+
+        @Test
+        void shouldThrowWhenReceiverIsFixedDeposit() {
+            Account fd = new Account("Bob", AccountType.FIXED_DEPOSIT, new BigDecimal("1000.00"));
+            assertThrows(AccountStatusException.class,
+                    () -> fd.transferIn(new BigDecimal("200.00")));
+        }
+    }
+
 }

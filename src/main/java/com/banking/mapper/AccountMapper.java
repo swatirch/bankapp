@@ -20,13 +20,17 @@ public class AccountMapper {
         entity.setBalance(account.getBalance());
         entity.setAccountStatus(account.getAccountStatus());
         entity.setCreatedAt(account.getCreatedAt());
-
+    
         List<TransactionEntity> transactionEntities = account.getTransactions()
                 .stream()
                 .map(TransactionMapper::toEntity)
                 .toList();
+    
+        // tell each transaction which account it belongs to
+        transactionEntities.forEach(t -> t.setAccount(entity));
+    
         entity.setTransactions(transactionEntities);
-
+    
         return entity;
     }
 

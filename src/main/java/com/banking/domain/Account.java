@@ -165,6 +165,36 @@ public class Account {
     return "ACC" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
   }
 
+  public void transferOut(BigDecimal amount) {
+    validateAccountIsActive();
+    validateNotFixedDeposit();
+    validateAmount(amount);
+    if (amount.compareTo(this.balance) > 0) {
+        throw new InsufficientBalanceException(
+                "Insufficient balance for transfer. Available: " + this.balance
+        );
+    }
+    this.balance = this.balance.subtract(amount);
+    this.transactions.add(new Transaction(
+            amount,
+            TransactionType.TRANSFER_OUT,
+            this.balance,
+            "Transfer out"
+    ));
+}
+
+  public void transferIn(BigDecimal amount) {
+      validateAccountIsActive();
+      validateNotFixedDeposit();
+      validateAmount(amount);
+      this.balance = this.balance.add(amount);
+      this.transactions.add(new Transaction(
+              amount,
+              TransactionType.TRANSFER_IN,
+              this.balance,
+              "Transfer in"
+      ));
+  }
   // ---- getters ----
 
   public String getAccountId() { return accountId; }

@@ -1,0 +1,118 @@
+I am building a banking application in Java/Spring Boot using TDD.
+Teach me by showing the PAIN first, then introduce the technology as the solution.
+
+TECH STACK: Java 17, Spring Boot 3.3.5, Maven, JUnit 5 + Mockito,
+JPA/Hibernate, PostgreSQL (Docker), Flyway, Swagger
+
+PACKAGE: com.banking
+
+COMPLETED PHASES:
+✅ Phase 1 - Domain TDD (Account, Transaction, enums, business rules)
+✅ Phase 2 - REST APIs, DTOs, Swagger, GlobalExceptionHandler, custom exceptions
+✅ Phase 3 - Service, Repository, Transfer, MockMvc tests, Bean Validation
+✅ Phase 4 - PostgreSQL, Docker, Flyway migrations, H2 for tests
+
+CURRENT PHASE: Phase X - [replace with current phase name]
+
+UPCOMING PHASES:
+Phase 5 - Spring Security + JWT + OAuth 2.0 + RBAC + Data Masking
+  PAIN: anyone can call any API, sensitive data exposed in responses
+  SOLUTION: JWT auth, OAuth 2.0 for external clients, role-based access
+  Roles: ADMIN (create/block accounts), TELLER (deposit/withdraw/transfer), CUSTOMER (own account only)
+  Data masking: account number ACC****5678, sensitive fields hidden by role
+  Secure API design: no sensitive data in URLs or logs
+  Tests: security tests with MockMvc
+
+Phase 6 - Transaction History + Account Management + Pagination
+  PAIN: no way to see what happened to an account, no admin controls
+  SOLUTION: paginated transaction history, block/unblock endpoints
+  Endpoints: GET /transactions, PATCH /block, PATCH /unblock, GET all accounts
+  Pageable, sorting by date/amount, ADMIN-only endpoints
+  Flyway migration if schema changes
+
+Phase 7 - Multithreading + Caching + Performance
+  PAIN: transfer blocks thread while doing notification+audit, DB hammered with same queries, two transfers hit same account simultaneously causing wrong balance
+  SOLUTION: @Async for notifications, Redis cache for hot data, optimistic locking with @Version
+  @Scheduled for batch jobs (interest calculation)
+  CompletableFuture for parallel lookups
+  HikariCP connection pool tuning
+  Concurrency control: @Version on AccountEntity prevents double-spend
+  Goal: 40% performance improvement, <1s response time
+
+Phase 8 - Kafka Event Streaming + Async Job Handling
+  PAIN: notification and audit log block the main transaction thread, peak load kills throughput, failed events are lost
+  SOLUTION: Kafka decouples producers from consumers
+  Topics: account-events, transaction-events, notification-events
+  Dead letter queue for failed events
+  Idempotent consumers: no double processing
+  Separate notification-service consumes events
+  Docker Compose gains Kafka + Zookeeper
+  Async audit log: every action recorded asynchronously
+
+Phase 9 - Microservices Split
+  PAIN: one monolith means one bug can take down everything, teams block each other, cannot scale individual services
+  SOLUTION: split into independent deployable services
+  Services: account-service, transaction-service, notification-service, loan-service, card-service, payment-service
+  API Gateway: Spring Cloud Gateway
+  Service discovery: Eureka
+  Inter-service calls: OpenFeign
+  Database per Service pattern
+  API versioning: /api/v1/, /api/v2/
+  Fault tolerance: Resilience4j circuit breaker, retry, fallback
+  Horizontal scaling: multiple instances behind gateway
+
+Phase 10 - Observability + Monitoring + Alerting
+  PAIN: production bug reported by customer, no idea which service failed, no idea when it started, no alerts fired
+  SOLUTION: distributed tracing, metrics, alerting
+  Distributed tracing: Micrometer + Zipkin
+  Metrics: Actuator + Prometheus + Grafana
+  Datadog: APM, log shipping, dashboards
+  Splunk: structured JSON logs, alert rules
+  Custom metrics: transaction throughput, error rates, latency percentiles
+  Alerts: p99 latency, error rate spikes, DB connection pool exhaustion
+  Health checks: readiness and liveness probes
+
+Phase 11 - CI/CD + Kubernetes + GCP
+  PAIN: manual deployments are slow and error-prone, one bad deploy takes down production, traffic spike kills fixed instances
+  SOLUTION: automated pipeline, container orchestration, auto-scaling
+  Dockerize every service with multi-stage builds
+  Kubernetes: Deployments, Services, ConfigMaps, Secrets, Ingress, HPA
+  Helm charts per service
+  Jenkins pipeline: Checkout → Test → Build → Docker push → Deploy dev → UAT gate → Deploy prod
+  GitHub Actions as parallel pipeline
+  GCP GKE deployment
+  Cloud SQL for production PostgreSQL
+  Namespaces: dev, uat, prod
+  Rolling updates: zero-downtime deployments
+
+KEY DESIGN DECISIONS:
+- BigDecimal for all money, never double
+- No setters on domain objects — state changes through methods only
+- Entity/Domain separation (AccountEntity vs Account)
+- AccountMapper + TransactionMapper for conversion
+- AccountRepository extends JpaRepository<AccountEntity, String>
+- Custom exceptions extending BankingException with ErrorCode constants
+- DTOs as records for immutability
+- H2 for tests (src/test/resources/application.properties)
+- PostgreSQL for dev via Docker (docker-compose.yml)
+- Flyway owns schema (ddl-auto=validate), never edit existing migrations
+- JWT for internal auth, OAuth 2.0 for external clients
+- Data masking on sensitive fields in all responses
+- Redis for caching hot data
+- Optimistic locking (@Version) for concurrency control
+- Kafka for async events with dead letter queue
+- Microservices: each owns its database
+- API versioning /api/v1/
+- TDD always: tests first, then implementation
+- Pain first: understand the problem before introducing the technology
+
+TEACHING APPROACH:
+- Always show the pain/problem first
+- Let me feel why something is broken before showing the fix
+- Then introduce the technology as the natural solution
+- Explain every design decision and why we made it
+- Ask questions to check understanding before moving on
+
+[paste your zip file of current src]
+
+Continue Phase X. Start by showing me the pain this phase solves before writing any code.

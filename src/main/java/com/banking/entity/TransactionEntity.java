@@ -29,6 +29,9 @@ public class TransactionEntity {
     @Column(nullable = false)
     private LocalDateTime timestamp;
 
+    @ManyToOne
+    @JoinColumn(name = "account_id", nullable = false)
+    private AccountEntity account;
     // ---- JPA needs this — do not use anywhere else ----
     public TransactionEntity() {}
 
@@ -63,4 +66,7 @@ public class TransactionEntity {
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
+
+    public AccountEntity getAccount() { return account; }
+    public void setAccount(AccountEntity account) { this.account = account; }
 }

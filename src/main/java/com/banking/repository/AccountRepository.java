@@ -1,11 +1,10 @@
 package com.banking.repository;
 
-import com.banking.domain.Account;
+import com.banking.entity.AccountEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface AccountRepository {
-    Account save(Account account);
-    Optional<Account> findById(String accountId);
-    Optional<Account> findByAccountNumber(String accountNumber);
+public interface AccountRepository extends JpaRepository<AccountEntity, String> {
+    Optional<AccountEntity> findByAccountNumber(String accountNumber);
 }
