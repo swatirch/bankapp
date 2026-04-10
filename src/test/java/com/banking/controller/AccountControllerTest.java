@@ -7,6 +7,7 @@ import com.banking.exception.AccountNotFoundException;
 import com.banking.exception.InsufficientBalanceException;
 import com.banking.exception.InvalidAmountException;
 import com.banking.exception.SameAccountTransferException;
+import com.banking.security.SecurityConfig;
 import com.banking.service.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Nested;
@@ -14,7 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -27,6 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AccountController.class)
+@Import(SecurityConfig.class) 
 class AccountControllerTest {
 
     @Autowired
@@ -44,6 +48,7 @@ class AccountControllerTest {
     }
 
     @Nested
+    @WithMockUser( roles = "CUSTOMER")
     class CreateAccount {
 
         @Test
@@ -104,6 +109,7 @@ class AccountControllerTest {
     }
 
     @Nested
+    @WithMockUser( roles = "CUSTOMER")
     class GetAccount {
 
         @Test
@@ -128,6 +134,7 @@ class AccountControllerTest {
     }
 
     @Nested
+    @WithMockUser( roles = "CUSTOMER")
     class Deposit {
 
         @Test
@@ -171,6 +178,7 @@ class AccountControllerTest {
     }
 
     @Nested
+    @WithMockUser( roles = "CUSTOMER")
     class Withdraw {
 
         @Test
@@ -215,6 +223,7 @@ class AccountControllerTest {
     }
 
     @Nested
+    @WithMockUser( roles = "CUSTOMER")
     class Transfer {
 
         @Test
