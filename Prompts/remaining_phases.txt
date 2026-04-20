@@ -1,0 +1,188 @@
+I am building a banking application in Java/Spring Boot using TDD.
+Teach me by showing the PAIN first, then introduce the technology as the solution.
+
+TECH STACK: Java 17, Spring Boot 3.3.5, Maven, JUnit 5 + Mockito,
+JPA/Hibernate, PostgreSQL (Docker), Flyway, Swagger
+PACKAGE: com.banking
+
+═══════════════════════════════════════════════════════
+COMPLETED PHASES
+═══════════════════════════════════════════════════════
+
+✅ Phase 1 — Domain TDD
+  - Account, Transaction, AccountType, AccountStatus, TransactionType
+  - BigDecimal for money, no setters, state via methods
+  - Pure unit tests, no Spring, no DB
+
+✅ Phase 2 — REST APIs
+  - AccountController, GlobalExceptionHandler
+  - DTOs as records, CreateAccountRequest, AmountRequest,
+    TransferRequest, AccountResponse, TransferResponse, ErrorResponse
+  - Custom exceptions + ErrorCode constants
+  - Swagger/OpenAPI with bearerAuth security scheme
+
+✅ Phase 3 — Service + Tests
+  - AccountService, AccountMapper, TransactionMapper
+  - MockMvc controller tests, Mockito service tests
+  - Bean validation (@Valid, @NotNull, @Positive)
+  - @WebMvcTest slice tests
+
+✅ Phase 4 — Database
+  - AccountEntity, TransactionEntity
+  - AccountRepository extends JpaRepository
+  - TransactionRepository with findByAccount_AccountId(Pageable)
+  - Flyway V1__init.sql (accounts + transactions tables)
+  - H2 for tests, PostgreSQL via Docker for dev
+  - @DataJpaTest + @ActiveProfiles("test")
+  - ddl-auto=validate
+
+✅ Phase 5 — Spring Security + JWT + RBAC
+  - UserEntity (implements UserDetails), Role (CUSTOMER, ADMIN)
+  - UserRepository (findByEmail)
+  - UserDetailsServiceImpl
+  - JwtService (@Value secret, HS256, generate + validate token)
+  - JwtFilter (OncePerRequestFilter, guard clauses pattern, SLF4J logger)
+  - SecurityConfig (stateless, CSRF disabled, AuthenticationEntryPoint → 401)
+  - AuthService (BCrypt, UUID, register + login)
+  - AuthController POST /api/auth/register → 201 + token
+                   POST /api/auth/login    → 200 + token
+  - AuthResponse record { String token }
+  - RegisterRequest, LoginRequest with @Valid
+  - @EnableMethodSecurity, @PreAuthorize("isAuthenticated()")
+  - verifyOwnership() helper in AccountController
+  - Data masking on AccountResponse (4532********1234)
+  - GlobalExceptionHandler handles BankingException → 400
+  - Flyway V2__create_users_table.sql
+  - spring-security-test dependency for @WithMockUser
+  - AccountControllerTest uses authenticateAs() helper + SecurityContextHolder
+  - OAuth 2.0 → DEFERRED to Phase 9 (Spring Authorization Server)
+  - 85 tests green, tested end to end in Swagger ✅
+
+✅ Phase 6 — Transaction History + Pagination + Admin
+  - ownerId (String) added to AccountEntity + Account domain
+  - Account.reconstitute() updated with ownerId parameter
+  - AccountMapper maps ownerId both ways
+  - AccountService.createAccount() takes ownerId from JWT
+  - AccountController reads userId via @AuthenticationPrincipal UserEntity
+  - verifyOwnership(): ADMIN bypasses, CUSTOMER must match ownerId
+  - TransactionResponse record
+  - GET /api/accounts/{id}/transactions → Page<TransactionResponse>
+    @PageableDefault(size=10) + @SortDefault(sort="timestamp", DESC)
+    NOTE: Swagger sends "string" as sort default — clear it before testing
+  - AdminController @PreAuthorize("hasRole('ADMIN')") on class level
+    GET  /api/admin/accounts         → Page<AccountResponse>
+    PATCH /api/admin/accounts/{id}/block
+    PATCH /api/admin/accounts/{id}/unblock
+  - AccountService: getAllAccounts, blockAccount, unblockAccount
+  - @EnableSpringDataWebSupport(VIA_DTO) on BankingApplication
+  - Flyway V3__add_owner_id_to_accounts.sql
+  - Flyway V4__add_version_to_accounts.sql
+
+✅ Phase 7 — Redis Cache + Optimistic Locking (PARTIAL)
+  - @Version on AccountEntity (Long version)
+  - Hibernate auto-generates: WHERE account_id=? AND version=?
+  - OptimisticLockException → 409 Conflict in GlobalExceptionHandler
+  - ObjectOptimisticLockingFailureException also handled
+  - OptimisticLockingTest: 3 tests (version starts 0, increments, conflict throws)
+  - spring-boot-starter-data-redis dependency
+  - Redis in docker-compose.yml (redis:7-alpine, port 6379)
+  - CacheConfig.java: RedisCacheManager, 10min TTL, Jackson serializer
+  - @EnableCaching on BankingApplication
+  - @Cacheable(value="accounts", key="#accountId") on getAccount
+  - @CacheEvict on deposit, withdraw, blockAccount, unblockAccount
+  - @CacheEvict(allEntries=true) on transfer
+  - Account + Transaction implement Serializable (serialVersionUID=1L)
+  - spring.cache.type=none in test application.properties
+  - spring.data.redis.host/port in main application.properties
+  - 85 tests green ✅
+
+  ⬜ STILL TODO in Phase 7:
+    - @Async for non-blocking notifications
+    - @Scheduled for interest calculation batch job
+    - CompletableFuture for parallel account lookups
+    - HikariCP connection pool tuning
+
+═══════════════════════════════════════════════════════
+CURRENT SESSION: finish Phase 7 remaining items
+═══════════════════════════════════════════════════════
+
+START HERE → @Async notifications
+  Pain: deposit blocks thread while sending SMS/email
+  Solution: @Async fires notification in background thread
+  @EnableAsync on BankingApplication
+  NotificationService with @Async methods
+  Configure ThreadPoolTaskExecutor (don't use SimpleAsyncTaskExecutor)
+  Test: verify notification called but response returned immediately
+
+THEN → @Scheduled interest calculation
+THEN → CompletableFuture parallel lookups  
+THEN → HikariCP tuning
+
+═══════════════════════════════════════════════════════
+UPCOMING PHASES
+═══════════════════════════════════════════════════════
+
+⬜ Phase 8 — Kafka Event Streaming
+  Pain: notification + audit block main thread, failed events lost
+  Topics: account-events, transaction-events, notification-events
+  Dead letter queue, idempotent consumers
+  Docker Compose: add Kafka + Zookeeper
+  Async audit log
+
+⬜ Phase 9 — Microservices
+  Services: account-service, transaction-service,
+            notification-service, auth-service
+  Spring Cloud Gateway (API Gateway)
+  Eureka service discovery
+  OpenFeign inter-service calls
+  Database per service
+  Resilience4j circuit breaker
+  OAuth 2.0 with Spring Authorization Server ← deferred from Phase 5
+  API versioning /api/v1/
+
+⬜ Phase 10 — Observability
+  Micrometer + Zipkin (distributed tracing)
+  Actuator + Prometheus + Grafana
+  Structured JSON logs
+  Custom metrics: throughput, error rates, latency percentiles
+  Health checks: readiness + liveness probes
+
+⬜ Phase 11 — CI/CD + Kubernetes + AWS
+  NOTE: AWS instead of GCP
+  Multi-stage Docker builds
+  Kubernetes: Deployments, Services, ConfigMaps,
+              Secrets, Ingress, HPA
+  Helm charts
+  Jenkins pipeline: Test → Build → Docker push → Deploy
+  GitHub Actions
+  AWS EKS, AWS RDS, AWS ECR
+  Namespaces: dev, uat, prod
+  Zero-downtime rolling updates
+
+═══════════════════════════════════════════════════════
+KEY DESIGN DECISIONS (never change these)
+═══════════════════════════════════════════════════════
+- BigDecimal for money, never double
+- No setters on domain objects
+- Entity/Domain/DTO separation
+- H2 for tests, PostgreSQL for dev
+- Flyway owns schema, never edit existing migrations
+- JWT stateless auth
+- TDD always: red → green → refactor
+- Pain first: feel the problem before the solution
+- AWS for cloud (Phase 11)
+- Spring Authorization Server for OAuth 2.0 (Phase 9)
+- Guard clauses pattern (fail fast, happy path last)
+
+═══════════════════════════════════════════════════════
+TEACHING APPROACH
+═══════════════════════════════════════════════════════
+- Show pain first, let me feel why it's broken
+- Introduce technology as the natural solution
+- Explain every design decision
+- Ask questions before moving on
+- Ask ME to write test cases first, then review
+- Give complete code when I'm tired or stuck
+- Never skip the why
+
+[attach src.zip + pom.xml when starting session]

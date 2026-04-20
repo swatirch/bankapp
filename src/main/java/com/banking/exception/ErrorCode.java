@@ -1,6 +1,5 @@
 package com.banking.exception;
 
-
 public final class ErrorCode {
 
     // Account errors
@@ -17,6 +16,11 @@ public final class ErrorCode {
     public static final String TRANSFER_FAILED = "TRANSFER_FAILED";
     public static final String SAME_ACCOUNT_TRANSFER = "SAME_ACCOUNT_TRANSFER";
 
+    // Authentication errors
+    public static final String DUPLICATE_EMAIL = "DUPLICATE_EMAIL";
+    public static final String USER_NOT_FOUND = "USER_NOT_FOUND";
+
     // Private constructor — nobody should instantiate this class
-    private ErrorCode() {}
+    private ErrorCode() {
+    }
 }

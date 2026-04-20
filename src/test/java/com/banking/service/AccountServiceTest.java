@@ -8,6 +8,7 @@ import com.banking.exception.AccountNotFoundException;
 import com.banking.exception.InsufficientBalanceException;
 import com.banking.exception.SameAccountTransferException;
 import com.banking.repository.AccountRepository;
+import com.banking.repository.TransactionRepository;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -30,10 +31,16 @@ import static org.mockito.Mockito.*;
 class AccountServiceTest {
 
     @Mock
-    AccountRepository accountRepository;
+    private NotificationService notificationService;
+
+    @Mock
+    private AccountRepository accountRepository;
+
+    @Mock
+    private TransactionRepository transactionRepository;
 
     @InjectMocks
-    AccountService accountService;
+    private AccountService accountService;
 
     // builds a realistic AccountEntity the way the DB would return one
     private AccountEntity buildEntity(String owner, BigDecimal balance) {
@@ -54,7 +61,8 @@ class AccountServiceTest {
         AccountEntity entity = buildEntity("John", new BigDecimal("1000.00"));
         when(accountRepository.save(any(AccountEntity.class))).thenReturn(entity);
 
-        Account created = accountService.createAccount("John", AccountType.SAVINGS, new BigDecimal("1000.00"));
+        Account created = accountService.createAccount("John", AccountType.SAVINGS, new BigDecimal("1000.00"),
+                "user-123");
 
         assertNotNull(created);
         assertEquals("John", created.getOwnerName());

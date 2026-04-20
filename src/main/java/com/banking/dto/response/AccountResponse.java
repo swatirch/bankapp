@@ -16,16 +16,23 @@ public record AccountResponse(
         AccountStatus accountStatus,
         LocalDateTime createdAt) {
 
-    public static AccountResponse from(Account account){
+    public static AccountResponse from(Account account) {
         return new AccountResponse(
                 account.getAccountId(),
-                account.getAccountNumber(),
+                mask(account.getAccountNumber()), // ← masked
                 account.getOwnerName(),
                 account.getAccountType(),
                 account.getBalance(),
                 account.getAccountStatus(),
-                account.getCreatedAt()
-        );
+                account.getCreatedAt());
     }
 
+    private static String mask(String accountNumber) {
+        if (accountNumber == null || accountNumber.length() < 16) {
+            return accountNumber; // return as-is if too short
+        }
+        return accountNumber.substring(0, 4)
+                + "********"
+                + accountNumber.substring(12);
+    }
 }

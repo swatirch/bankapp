@@ -1,10 +1,12 @@
 package com.banking.domain;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class Transaction {
+public class Transaction implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private final String transactionId;
     private final BigDecimal amount;
@@ -15,7 +17,7 @@ public class Transaction {
 
     // ---- main constructor — used when creating a NEW transaction ----
     public Transaction(BigDecimal amount, TransactionType type,
-                       BigDecimal balanceAfter, String description) {
+            BigDecimal balanceAfter, String description) {
         this.transactionId = UUID.randomUUID().toString();
         this.amount = amount;
         this.type = type;
@@ -23,9 +25,10 @@ public class Transaction {
         this.description = description;
         this.timestamp = LocalDateTime.now();
     }
+
     private Transaction(String transactionId, BigDecimal amount,
-                        TransactionType type, BigDecimal balanceAfter,
-                        String description, LocalDateTime timestamp) {
+            TransactionType type, BigDecimal balanceAfter,
+            String description, LocalDateTime timestamp) {
         this.transactionId = transactionId;
         this.amount = amount;
         this.type = type;
@@ -47,15 +50,31 @@ public class Transaction {
                 type,
                 balanceAfter,
                 description,
-                timestamp
-        );
+                timestamp);
     }
     // ---- getters only — Transaction is immutable ----
 
-    public String getTransactionId() { return transactionId; }
-    public BigDecimal getAmount() { return amount; }
-    public TransactionType getType() { return type; }
-    public BigDecimal getBalanceAfter() { return balanceAfter; }
-    public String getDescription() { return description; }
-    public LocalDateTime getTimestamp() { return timestamp; }
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public TransactionType getType() {
+        return type;
+    }
+
+    public BigDecimal getBalanceAfter() {
+        return balanceAfter;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 }
