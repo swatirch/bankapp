@@ -54,8 +54,10 @@ COMPLETED PHASES
   - GlobalExceptionHandler handles BankingException → 400
   - Flyway V2__create_users_table.sql
   - spring-security-test dependency for @WithMockUser
-  - AccountControllerTest uses authenticateAs() helper + SecurityContextHolder
-  - OAuth 2.0 → DEFERRED to Phase 9 (Spring Authorization Server)
+  - AccountControllerTest uses authenticateAs() helper
+    + SecurityContextHolder
+  - OAuth 2.0 → DEFERRED to Phase 9
+    (Spring Authorization Server)
   - 85 tests green, tested end to end in Swagger ✅
 
 ✅ Phase 6 — Transaction History + Pagination + Admin
@@ -63,13 +65,17 @@ COMPLETED PHASES
   - Account.reconstitute() updated with ownerId parameter
   - AccountMapper maps ownerId both ways
   - AccountService.createAccount() takes ownerId from JWT
-  - AccountController reads userId via @AuthenticationPrincipal UserEntity
+  - AccountController reads userId via
+    @AuthenticationPrincipal UserEntity
   - verifyOwnership(): ADMIN bypasses, CUSTOMER must match ownerId
   - TransactionResponse record
   - GET /api/accounts/{id}/transactions → Page<TransactionResponse>
-    @PageableDefault(size=10) + @SortDefault(sort="timestamp", DESC)
-    NOTE: Swagger sends "string" as sort default — clear it before testing
-  - AdminController @PreAuthorize("hasRole('ADMIN')") on class level
+    @PageableDefault(size=10) +
+    @SortDefault(sort="timestamp", DESC)
+    NOTE: Swagger sends "string" as sort default
+    — clear it before testing
+  - AdminController @PreAuthorize("hasRole('ADMIN')")
+    on class level
     GET  /api/admin/accounts         → Page<AccountResponse>
     PATCH /api/admin/accounts/{id}/block
     PATCH /api/admin/accounts/{id}/unblock
@@ -78,53 +84,73 @@ COMPLETED PHASES
   - Flyway V3__add_owner_id_to_accounts.sql
   - Flyway V4__add_version_to_accounts.sql
 
-✅ Phase 7 — Redis Cache + Optimistic Locking (PARTIAL)
+✅ Phase 7 — Redis + Optimistic Locking + Async (PARTIAL)
   - @Version on AccountEntity (Long version)
-  - Hibernate auto-generates: WHERE account_id=? AND version=?
-  - OptimisticLockException → 409 Conflict in GlobalExceptionHandler
+  - Hibernate auto-generates:
+    WHERE account_id=? AND version=?
+  - OptimisticLockException → 409 Conflict
+    in GlobalExceptionHandler
   - ObjectOptimisticLockingFailureException also handled
-  - OptimisticLockingTest: 3 tests (version starts 0, increments, conflict throws)
+  - OptimisticLockingTest: 3 tests
+    (version starts 0, increments, conflict throws)
   - spring-boot-starter-data-redis dependency
   - Redis in docker-compose.yml (redis:7-alpine, port 6379)
-  - CacheConfig.java: RedisCacheManager, 10min TTL, Jackson serializer
+  - CacheConfig.java: RedisCacheManager, 10min TTL,
+    Jackson serializer
   - @EnableCaching on BankingApplication
-  - @Cacheable(value="accounts", key="#accountId") on getAccount
-  - @CacheEvict on deposit, withdraw, blockAccount, unblockAccount
+  - @Cacheable(value="accounts", key="#accountId")
+    on getAccount
+  - @CacheEvict on deposit, withdraw,
+    blockAccount, unblockAccount
   - @CacheEvict(allEntries=true) on transfer
-  - Account + Transaction implement Serializable (serialVersionUID=1L)
+  - Account + Transaction implement Serializable
+    (serialVersionUID=1L)
   - spring.cache.type=none in test application.properties
   - spring.data.redis.host/port in main application.properties
-  - 85 tests green ✅
+  - AsyncConfig.java: ThreadPoolTaskExecutor
+    corePool=5, maxPool=20, queue=100,
+    prefix="notification-", graceful shutdown
+  - @EnableAsync in AsyncConfig.java
+    (NOT in BankingApplication)
+  - NotificationService: @Async("notificationExecutor")
+    sendDepositNotification,
+    sendWithdrawalNotification,
+    sendTransferNotification
+  - AccountService: try/catch around notification calls
+    → notification failure never affects transaction
+  - NotificationServiceTest: 3 tests green
+    (notification called, withdrawal notification,
+    failure doesn't affect deposit)
+  - 88 tests green ✅
 
   ⬜ STILL TODO in Phase 7:
-    - @Async for non-blocking notifications
-    - @Scheduled for interest calculation batch job
+    - Spring Batch (interest calculation)
+      → replaces @Scheduled + InterestCalculationService
+      → chunk processing (1000 at a time)
+      → job history in DB
+      → restart from failure
+      → manual trigger endpoint
+        POST /api/admin/jobs/interest
+      → spring-boot-starter-batch dependency
+      → spring.batch.jdbc.initialize-schema=always (dev)
+      → spring.batch.job.enabled=false
+      → AccountItemReader (RepositoryItemReader)
+      → InterestItemProcessor (ItemProcessor)
+      → InterestCalculationJobConfig (Job + Step)
+      → InterestJobScheduler (@Scheduled + JobLauncher)
+      → InterestJobSchedulerTest
     - CompletableFuture for parallel account lookups
     - HikariCP connection pool tuning
-
-═══════════════════════════════════════════════════════
-CURRENT SESSION: finish Phase 7 remaining items
-═══════════════════════════════════════════════════════
-
-START HERE → @Async notifications
-  Pain: deposit blocks thread while sending SMS/email
-  Solution: @Async fires notification in background thread
-  @EnableAsync on BankingApplication
-  NotificationService with @Async methods
-  Configure ThreadPoolTaskExecutor (don't use SimpleAsyncTaskExecutor)
-  Test: verify notification called but response returned immediately
-
-THEN → @Scheduled interest calculation
-THEN → CompletableFuture parallel lookups  
-THEN → HikariCP tuning
 
 ═══════════════════════════════════════════════════════
 UPCOMING PHASES
 ═══════════════════════════════════════════════════════
 
 ⬜ Phase 8 — Kafka Event Streaming
-  Pain: notification + audit block main thread, failed events lost
-  Topics: account-events, transaction-events, notification-events
+  Pain: notification + audit block main thread,
+        failed events lost
+  Topics: account-events, transaction-events,
+          notification-events
   Dead letter queue, idempotent consumers
   Docker Compose: add Kafka + Zookeeper
   Async audit log
@@ -137,27 +163,54 @@ UPCOMING PHASES
   OpenFeign inter-service calls
   Database per service
   Resilience4j circuit breaker
-  OAuth 2.0 with Spring Authorization Server ← deferred from Phase 5
+  OAuth 2.0 with Spring Authorization Server
+    ← deferred from Phase 5
   API versioning /api/v1/
+  Hexagonal architecture (ports and adapters)
+    → IAccountService (port/interface)
+    → AccountService implements IAccountService (adapter)
+    → IAuthService, INotificationService same pattern
+    → Controller depends on interface not implementation
+    → Dependency Inversion Principle applied properly
+    → Introduced HERE when second implementation exists
+      (JPA adapter + gRPC adapter)
 
 ⬜ Phase 10 — Observability
   Micrometer + Zipkin (distributed tracing)
   Actuator + Prometheus + Grafana
   Structured JSON logs
-  Custom metrics: throughput, error rates, latency percentiles
+  Custom metrics: throughput, error rates,
+                  latency percentiles
   Health checks: readiness + liveness probes
 
 ⬜ Phase 11 — CI/CD + Kubernetes + AWS
   NOTE: AWS instead of GCP
   Multi-stage Docker builds
-  Kubernetes: Deployments, Services, ConfigMaps,
-              Secrets, Ingress, HPA
+  Kubernetes:
+    Pods, Deployments, Services
+    ConfigMaps and Secrets
+    Ingress controller
+    HPA (Horizontal Pod Autoscaler)
+    Rolling updates (zero downtime)
+    Readiness + Liveness probes
+    Namespaces: dev/uat/prod
+    Resource limits and requests
   Helm charts
-  Jenkins pipeline: Test → Build → Docker push → Deploy
-  GitHub Actions
-  AWS EKS, AWS RDS, AWS ECR
-  Namespaces: dev, uat, prod
-  Zero-downtime rolling updates
+  AWS:
+    EKS (Elastic Kubernetes Service)
+    RDS (managed PostgreSQL)
+    ElastiCache (managed Redis)
+    MSK (managed Kafka)
+    ECR (container registry)
+    ALB (Application Load Balancer)
+    IAM roles and policies
+    VPC, subnets, security groups
+  CI/CD:
+    GitHub Actions pipeline
+    Jenkins pipeline
+    Test → Build → Push → Deploy
+    Environment promotion
+    Rollback strategy
 
 ═══════════════════════════════════════════════════════
 KEY DESIGN DECISIONS (never change these)
@@ -173,6 +226,27 @@ KEY DESIGN DECISIONS (never change these)
 - AWS for cloud (Phase 11)
 - Spring Authorization Server for OAuth 2.0 (Phase 9)
 - Guard clauses pattern (fail fast, happy path last)
+- IAccountService interface deferred to Phase 9
+  (introduce when second implementation exists)
+- No SimpleAsyncTaskExecutor ever
+  (always ThreadPoolTaskExecutor)
+- Spring Batch over @Scheduled for critical batch jobs
+- Redis over in-memory cache for microservices
+
+═══════════════════════════════════════════════════════
+INTERVIEW PREP NOTES
+═══════════════════════════════════════════════════════
+- Answer structure: WHAT + HOW + WHY
+- JWT: explain full flow from login to protected endpoint
+- Redis: mention "shared cache layer across all instances"
+- Optimistic locking: mention WHERE version=? SQL,
+  OptimisticLockException, 409 response
+- Spring Batch vs Kafka: batch=bulk processing,
+  Kafka=real-time events, neither replaces the other
+- Interface vs class: Dependency Inversion,
+  introduce interface when second impl exists
+- Practice: explain each concept out loud daily
+  without notes
 
 ═══════════════════════════════════════════════════════
 TEACHING APPROACH
@@ -182,7 +256,10 @@ TEACHING APPROACH
 - Explain every design decision
 - Ask questions before moving on
 - Ask ME to write test cases first, then review
-- Give complete code when I'm tired or stuck
+- Give complete code when tired or stuck
 - Never skip the why
+- After each phase: ask 3 interview questions
+  to verify understanding
+- Answer structure always: WHAT + HOW + WHY
 
 [attach src.zip + pom.xml when starting session]
