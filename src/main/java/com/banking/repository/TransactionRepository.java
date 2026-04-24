@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TransactionRepository extends JpaRepository<TransactionEntity, String> {
     Page<TransactionEntity> findByAccount_AccountId(String accountId, Pageable pageable);
+
+    long countByAccount_AccountId(String accountId);
 }

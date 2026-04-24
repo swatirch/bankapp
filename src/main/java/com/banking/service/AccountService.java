@@ -3,6 +3,7 @@ package com.banking.service;
 import com.banking.domain.Account;
 import com.banking.domain.AccountType;
 import com.banking.dto.response.AccountResponse;
+import com.banking.dto.response.AccountSummaryResponse;
 import com.banking.entity.AccountEntity;
 import com.banking.entity.TransactionEntity;
 import com.banking.exception.AccountNotFoundException;
@@ -23,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Service
 public class AccountService {
@@ -30,13 +33,15 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final NotificationService notificationService;
+    private final Executor queryExecutor; // for async queries
     private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
 
     public AccountService(AccountRepository accountRepository, TransactionRepository transactionRepository,
-            NotificationService notificationService) {
+            NotificationService notificationService, Executor queryExecutor) {
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
         this.notificationService = notificationService;
+        this.queryExecutor = queryExecutor;
     }
 
     @Transactional
@@ -146,5 +151,29 @@ public class AccountService {
         Account account = findAccountById(accountId);
         account.activate();
         accountRepository.save(AccountMapper.toEntity(account));
+    }
+
+    public List<AccountSummaryResponse> getAllAccountsWithStats() {
+
+        List<AccountEntity> accounts = accountRepository.findAll();
+
+        List<CompletableFuture<AccountSummaryResponse>> futures = accounts
+                .stream()
+                .map(entity -> CompletableFuture
+                        .supplyAsync(() -> {
+                            long count = transactionRepository.countByAccount_AccountId(entity.getAccountId());
+                            return AccountSummaryResponse.from(AccountResponse.from(AccountMapper.toDomain(entity)),
+                                    count);
+                        }, queryExecutor)
+                        .exceptionally(ex -> {
+                            logger.warn("Failed to fetch stats for account {}: {}",
+                                    entity.getAccountId(), ex.getMessage());
+                            return AccountSummaryResponse.from(AccountResponse.from(AccountMapper.toDomain(entity)),
+                                    0L);
+                        }))
+                .toList();
+
+        return futures.stream().map(CompletableFuture::join).toList();
+
     }
 }
