@@ -8,11 +8,12 @@ import com.banking.entity.AccountEntity;
 import com.banking.entity.TransactionEntity;
 import com.banking.exception.AccountNotFoundException;
 import com.banking.exception.SameAccountTransferException;
+import com.banking.kafka.TransactionEvent;
+import com.banking.kafka.TransactionEventProducer;
 import com.banking.mapper.AccountMapper;
 import com.banking.repository.AccountRepository;
 import com.banking.repository.TransactionRepository;
 
-import org.hibernate.annotations.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -33,14 +35,19 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final NotificationService notificationService;
-    private final Executor queryExecutor; // for async queries
+    private final TransactionEventProducer eventProducer;
+    private final Executor queryExecutor;
     private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
 
-    public AccountService(AccountRepository accountRepository, TransactionRepository transactionRepository,
-            NotificationService notificationService, Executor queryExecutor) {
+    public AccountService(AccountRepository accountRepository,
+            TransactionRepository transactionRepository,
+            NotificationService notificationService,
+            TransactionEventProducer eventProducer,
+            Executor queryExecutor) {
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
         this.notificationService = notificationService;
+        this.eventProducer = eventProducer;
         this.queryExecutor = queryExecutor;
     }
 
@@ -60,13 +67,26 @@ public class AccountService {
         Account account = findAccountById(accountId);
         account.deposit(amount);
         AccountEntity saved = accountRepository.save(AccountMapper.toEntity(account));
+        Account result = AccountMapper.toDomain(saved);
+
+        // Legacy notification (kept for backward compatibility)
         try {
-            notificationService.sendDepositNotification(accountId, amount); // ← accountId not ownerId
+            notificationService.sendDepositNotification(accountId, amount);
         } catch (Exception e) {
             logger.warn("Failed to send deposit notification for account {}: {}",
                     accountId, e.getMessage());
         }
-        return AccountMapper.toDomain(saved);
+
+        // Kafka event — decoupled, async, never blocks the transaction
+        eventProducer.publish(new TransactionEvent(
+                UUID.randomUUID().toString(),
+                accountId,
+                TransactionEvent.EventType.DEPOSIT,
+                amount,
+                result.getBalance(),
+                "Deposit of " + amount));
+
+        return result;
     }
 
     @Transactional
@@ -75,21 +95,31 @@ public class AccountService {
         Account account = findAccountById(accountId);
         account.withdraw(amount);
         AccountEntity saved = accountRepository.save(AccountMapper.toEntity(account));
+        Account result = AccountMapper.toDomain(saved);
+
         try {
-            notificationService.sendWithdrawalNotification(account.getAccountId(), amount);
+            notificationService.sendWithdrawalNotification(accountId, amount);
         } catch (Exception e) {
             logger.warn("Failed to send withdrawal notification for account {}: {}",
                     accountId, e.getMessage());
         }
-        return AccountMapper.toDomain(saved);
+
+        eventProducer.publish(new TransactionEvent(
+                UUID.randomUUID().toString(),
+                accountId,
+                TransactionEvent.EventType.WITHDRAWAL,
+                amount,
+                result.getBalance(),
+                "Withdrawal of " + amount));
+
+        return result;
     }
 
     @Transactional
-    @CacheEvict(value = "accounts", allEntries = true) // evict all to ensure consistency after transfer
+    @CacheEvict(value = "accounts", allEntries = true)
     public List<Account> transfer(String fromAccountId, String toAccountId, BigDecimal amount) {
         if (fromAccountId.equals(toAccountId)) {
-            throw new SameAccountTransferException(
-                    "Cannot transfer to the same account");
+            throw new SameAccountTransferException("Cannot transfer to the same account");
         }
         Account fromAccount = findAccountById(fromAccountId);
         Account toAccount = findAccountById(toAccountId);
@@ -99,13 +129,34 @@ public class AccountService {
 
         AccountEntity savedFrom = accountRepository.save(AccountMapper.toEntity(fromAccount));
         AccountEntity savedTo = accountRepository.save(AccountMapper.toEntity(toAccount));
+
+        Account resultFrom = AccountMapper.toDomain(savedFrom);
+        Account resultTo = AccountMapper.toDomain(savedTo);
+
         try {
-            notificationService.sendTransferNotification(fromAccount.getAccountId(), toAccount.getAccountId(), amount);
+            notificationService.sendTransferNotification(fromAccountId, toAccountId, amount);
         } catch (Exception e) {
             logger.warn("Failed to send transfer notification for accounts {} -> {}: {}",
                     fromAccountId, toAccountId, e.getMessage());
         }
-        return List.of(AccountMapper.toDomain(savedFrom), AccountMapper.toDomain(savedTo));
+
+        // Two events — one per account (ordering guaranteed per account by Kafka key)
+        eventProducer.publish(new TransactionEvent(
+                UUID.randomUUID().toString(),
+                fromAccountId,
+                TransactionEvent.EventType.TRANSFER_OUT,
+                amount,
+                resultFrom.getBalance(),
+                "Transfer to " + toAccountId));
+        eventProducer.publish(new TransactionEvent(
+                UUID.randomUUID().toString(),
+                toAccountId,
+                TransactionEvent.EventType.TRANSFER_IN,
+                amount,
+                resultTo.getBalance(),
+                "Transfer from " + fromAccountId));
+
+        return List.of(resultFrom, resultTo);
     }
 
     @Cacheable(value = "accounts", key = "#accountId")
@@ -123,7 +174,6 @@ public class AccountService {
 
     @Transactional(readOnly = true)
     public Page<TransactionEntity> getTransactions(String accountId, Pageable pageable) {
-        // verify account exists first
         if (!accountRepository.existsById(accountId)) {
             throw new AccountNotFoundException("Account not found with id: " + accountId);
         }
@@ -154,26 +204,22 @@ public class AccountService {
     }
 
     public List<AccountSummaryResponse> getAllAccountsWithStats() {
-
         List<AccountEntity> accounts = accountRepository.findAll();
-
         List<CompletableFuture<AccountSummaryResponse>> futures = accounts
                 .stream()
                 .map(entity -> CompletableFuture
                         .supplyAsync(() -> {
                             long count = transactionRepository.countByAccount_AccountId(entity.getAccountId());
-                            return AccountSummaryResponse.from(AccountResponse.from(AccountMapper.toDomain(entity)),
-                                    count);
+                            return AccountSummaryResponse.from(
+                                    AccountResponse.from(AccountMapper.toDomain(entity)), count);
                         }, queryExecutor)
                         .exceptionally(ex -> {
                             logger.warn("Failed to fetch stats for account {}: {}",
                                     entity.getAccountId(), ex.getMessage());
-                            return AccountSummaryResponse.from(AccountResponse.from(AccountMapper.toDomain(entity)),
-                                    0L);
+                            return AccountSummaryResponse.from(
+                                    AccountResponse.from(AccountMapper.toDomain(entity)), 0L);
                         }))
                 .toList();
-
         return futures.stream().map(CompletableFuture::join).toList();
-
     }
 }

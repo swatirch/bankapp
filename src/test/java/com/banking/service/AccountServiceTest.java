@@ -9,6 +9,7 @@ import com.banking.exception.InsufficientBalanceException;
 import com.banking.exception.SameAccountTransferException;
 import com.banking.repository.AccountRepository;
 import com.banking.repository.TransactionRepository;
+import com.banking.kafka.TransactionEventProducer;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,12 @@ class AccountServiceTest {
 
     @Mock
     private TransactionRepository transactionRepository;
+
+    @Mock
+    private TransactionEventProducer eventProducer;
+
+    @Mock
+    private java.util.concurrent.Executor queryExecutor;
 
     @InjectMocks
     private AccountService accountService;

@@ -12,6 +12,7 @@ import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -25,6 +26,8 @@ import static org.springframework.batch.core.BatchStatus.COMPLETED;
 @SpringBootTest
 @SpringBatchTest
 @ActiveProfiles("test")
+@EmbeddedKafka(partitions = 1, topics = { "transaction-events" })
+
 class InterestJobTest {
 
         @Autowired
