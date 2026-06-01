@@ -1,0 +1,290 @@
+CORE JAVA
+│
+├── 1. Java Foundations
+│   ├── Why Java
+│   ├── JVM / JRE / JDK
+│   ├── Bytecode
+│   ├── Compilation & Execution
+│   ├── Stack vs Heap
+│   ├── Primitives vs References
+│   ├── Memory Model Basics
+│   └── Garbage Collection
+│
+├── 2. Language Fundamentals
+│   ├── Syntax
+│   ├── Variables
+│   │   ├── Local Variables
+│   │   ├── Instance Variables
+│   │   ├── Static Variables
+│   │   └── final Variables
+│   ├── Data Types
+│   ├── Literals
+│   ├── Operators
+│   │   ├── Arithmetic
+│   │   ├── Relational
+│   │   ├── Logical
+│   │   ├── Bitwise
+│   │   ├── Ternary
+│   │   └── instanceof
+│   ├── Type Conversion
+│   └── Control Flow
+│       ├── if / switch
+│       ├── loops
+│       └── break / continue
+│
+├── 3. OOP Foundations
+│   ├── Classes & Objects
+│   ├── Constructors
+│   │   ├── Default
+│   │   ├── Parameterized
+│   │   └── Constructor Chaining
+│   ├── Encapsulation
+│   ├── Inheritance
+│   ├── Polymorphism
+│   │   ├── Overloading
+│   │   ├── Overriding
+│   │   ├── Upcasting
+│   │   └── Downcasting
+│   ├── Abstraction
+│   ├── Interfaces
+│   ├── Packages
+│   │   ├── package
+│   │   ├── import
+│   │   ├── static import
+│   │   └── package-private access
+│   ├── Immutable Objects
+│   └── Object Class
+│       ├── equals()
+│       ├── hashCode()
+│       ├── toString()
+│       ├── getClass()
+│       └── clone()
+│
+├── 4. Memory-Oriented Types
+│   ├── Arrays
+│   │   ├── 1D Arrays
+│   │   ├── Multidimensional Arrays
+│   │   └── Common Pitfalls
+│   ├── Strings
+│   │   ├── String Pool
+│   │   ├── Immutability
+│   │   └── String Concatenation
+│   ├── StringBuilder
+│   ├── StringBuffer
+│   ├── Wrapper Classes
+│   ├── Autoboxing / Unboxing
+│   └── == vs equals()
+│
+├── 5. Exception Handling
+│   ├── Exception Hierarchy
+│   ├── Error vs Exception
+│   ├── Checked Exceptions
+│   ├── Unchecked Exceptions
+│   ├── try-catch-finally
+│   ├── Multi-Catch
+│   ├── throw / throws
+│   ├── Custom Exceptions
+│   ├── Try-With-Resources
+│   └── Exception Best Practices
+│
+├── 6. Collections Framework
+│   ├── Collection Interface
+│   │   ├── List
+│   │   │   ├── ArrayList
+│   │   │   └── LinkedList
+│   │   │
+│   │   ├── Set
+│   │   │   ├── HashSet
+│   │   │   ├── LinkedHashSet
+│   │   │   └── TreeSet
+│   │   │
+│   │   └── Queue
+│   │       └── PriorityQueue
+│   │
+│   ├── Map Hierarchy
+│   │   ├── HashMap
+│   │   ├── LinkedHashMap
+│   │   └── TreeMap
+│   │
+│   ├── Iterator
+│   ├── Comparable
+│   ├── Comparator
+│   ├── Fail-Fast Iterators
+│   └── Collection Internals
+│       ├── ArrayList Internals
+│       ├── LinkedList Internals
+│       ├── HashMap Internals
+│       ├── HashSet Internals
+│       ├── TreeMap Internals
+│       ├── Hashing
+│       ├── Collision Handling
+│       └── Time Complexity Analysis
+│
+├── 7. Generics
+│   ├── Generic Classes
+│   ├── Generic Interfaces
+│   ├── Generic Methods
+│   ├── Type Inference
+│   ├── Wildcards
+│   │   ├── ?
+│   │   ├── ? extends
+│   │   └── ? super
+│   ├── PECS Principle
+│   ├── Bounded Type Parameters
+│   └── Type Erasure
+│
+├── 8. I/O & Files
+│   ├── Streams
+│   │   ├── Byte Streams
+│   │   └── Character Streams
+│   ├── File API
+│   ├── Buffered Streams
+│   ├── Serialization
+│   │   ├── Serializable
+│   │   ├── transient
+│   │   ├── serialVersionUID
+│   │   └── Security Concerns
+│   └── NIO
+│       ├── Path
+│       ├── Paths
+│       ├── Files
+│       ├── Buffer
+│       ├── Channel
+│       └── Selector
+│
+├── 9. Functional Java
+│   ├── Functional Interfaces
+│   │   ├── Predicate
+│   │   ├── Consumer
+│   │   ├── Supplier
+│   │   └── Function
+│   ├── Lambda Expressions
+│   ├── Method References
+│   ├── Streams API
+│   │   ├── map
+│   │   ├── filter
+│   │   ├── sorted
+│   │   ├── distinct
+│   │   ├── reduce
+│   │   ├── collect
+│   │   └── Parallel Streams
+│   └── Optional
+│
+├── 10. Multithreading & Concurrency
+│   ├── Thread
+│   ├── Runnable
+│   ├── Thread Lifecycle
+│   ├── Synchronization
+│   ├── wait / notify / notifyAll
+│   ├── volatile
+│   ├── Atomic Classes
+│   ├── Java Memory Model
+│   │   ├── Visibility
+│   │   ├── Atomicity
+│   │   ├── Happens-Before
+│   │   └── Reordering
+│   ├── Locks
+│   │   ├── ReentrantLock
+│   │   ├── ReadWriteLock
+│   │   └── StampedLock
+│   ├── Coordination Utilities
+│   │   ├── CountDownLatch
+│   │   ├── CyclicBarrier
+│   │   ├── Semaphore
+│   │   └── Phaser
+│   ├── Executors
+│   ├── Concurrent Collections
+│   ├── CompletableFuture
+│   ├── ForkJoin Framework
+│   └── Virtual Threads
+│
+├── 11. Utility APIs
+│   ├── Date & Time API
+│   ├── Math
+│   ├── Random
+│   ├── UUID
+│   ├── Enums
+│   ├── Inner Classes
+│   │   ├── Static Nested
+│   │   ├── Inner
+│   │   └── Anonymous
+│   └── Utility Classes
+│
+├── 12. Reflection & Annotations
+│   ├── Reflection API
+│   ├── Class Object
+│   ├── Methods / Fields / Constructors
+│   ├── Dynamic Proxies
+│   ├── Built-in Annotations
+│   ├── Custom Annotations
+│   ├── Annotation Processing
+│   ├── Retention Policies
+│   └── Runtime Metadata
+│
+├── 13. Networking
+│   ├── TCP/IP Basics
+│   ├── UDP Basics
+│   ├── Socket
+│   ├── ServerSocket
+│   ├── HTTP Client API
+│   └── NIO Networking
+│
+├── 14. JDBC
+│   ├── Drivers
+│   ├── Connection
+│   ├── Statement
+│   ├── PreparedStatement
+│   ├── ResultSet
+│   ├── Batch Processing
+│   ├── Transactions
+│   ├── commit()
+│   └── rollback()
+│
+├── 15. Modern Java (9–21)
+│   ├── List.of()
+│   ├── Set.of()
+│   ├── Map.of()
+│   ├── var
+│   ├── Switch Expressions
+│   ├── Text Blocks
+│   ├── Records
+│   ├── Sealed Classes
+│   ├── Pattern Matching
+│   ├── Record Patterns
+│   └── Java 21 Features
+│
+├── 16. Modules
+│   ├── module-info.java
+│   ├── requires
+│   ├── exports
+│   └── Modular Applications
+│
+├── 17. JVM Internals
+│   ├── Class Loading
+│   ├── Parent Delegation Model
+│   ├── Classloaders
+│   ├── JVM Memory Areas
+│   ├── Heap Generations
+│   ├── Metaspace
+│   ├── Garbage Collectors
+│   │   ├── Serial
+│   │   ├── Parallel
+│   │   ├── G1
+│   │   └── ZGC
+│   ├── JIT Compilation
+│   ├── Escape Analysis
+│   ├── GC Logging
+│   └── Performance Tuning
+│
+└── 18. Design & Best Practices
+    ├── SOLID Principles
+    ├── DRY
+    ├── KISS
+    ├── Composition over Inheritance
+    ├── Singleton
+    ├── Factory
+    ├── Builder
+    ├── Strategy
+    ├── Observer
+    ├── Adapter
+    └── Template Method
