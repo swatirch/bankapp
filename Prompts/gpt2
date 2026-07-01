@@ -1,0 +1,338 @@
+After Multithreading, continue my remaining roadmap in this order:
+
+Remaining Core Java Roadmap:
+
+1. Generics
+
+   * why generics were introduced
+   * raw type problem
+   * type safety
+   * generic classes
+   * generic methods
+   * bounded types
+   * wildcards
+   * ? extends
+   * ? super
+   * PECS rule
+   * type erasure
+   * generics with collections
+   * interview traps
+
+2. Functional Java
+
+   * functional interfaces
+   * Predicate
+   * Consumer
+   * Supplier
+   * Function
+   * BiFunction
+   * lambda expressions
+   * method references
+   * constructor references
+   * default methods
+   * static methods in interfaces
+
+3. Streams API
+
+   * why streams were introduced
+   * stream vs collection
+   * map
+   * filter
+   * flatMap
+   * sorted
+   * distinct
+   * limit
+   * skip
+   * collect
+   * groupingBy
+   * partitioningBy
+   * counting
+   * mapping
+   * reducing
+   * Optional with streams
+   * parallel streams
+   * stream interview/output questions
+
+4. Optional
+
+   * why Optional was introduced
+   * avoiding NullPointerException
+   * of
+   * ofNullable
+   * empty
+   * isPresent
+   * ifPresent
+   * orElse
+   * orElseGet
+   * orElseThrow
+   * map
+   * flatMap
+   * Optional interview traps
+
+5. Java I/O and NIO
+
+   * File
+   * InputStream
+   * OutputStream
+   * Reader
+   * Writer
+   * BufferedReader
+   * BufferedWriter
+   * Files
+   * Path
+   * try-with-resources
+   * file reading/writing production examples
+
+6. Serialization
+
+   * Serializable
+   * serialVersionUID
+   * transient
+   * custom serialization
+   * serialization issues
+   * why serialization is risky
+   * interview questions
+
+7. Date and Time API
+
+   * LocalDate
+   * LocalTime
+   * LocalDateTime
+   * ZonedDateTime
+   * Instant
+   * Duration
+   * Period
+   * DateTimeFormatter
+   * banking examples like transaction date, settlement time, timezone
+
+8. Utility APIs
+
+   * BigDecimal
+   * BigInteger
+   * UUID
+   * Random vs SecureRandom
+   * Objects utility class
+   * Optional recap
+   * formatting money safely
+
+9. JVM Internals Deep
+
+   * JVM architecture
+   * class loading
+   * class loader hierarchy
+   * linking
+   * initialization
+   * bytecode
+   * JIT compiler
+   * interpreter
+   * stack frame
+   * heap
+   * metaspace
+   * garbage collection
+   * GC roots
+   * minor GC
+   * major GC
+   * full GC
+   * OutOfMemoryError
+   * StackOverflowError
+   * memory leak examples
+
+10. Advanced Exception Handling
+
+* exception hierarchy revision
+* checked vs unchecked in production
+* custom business exceptions
+* global exception handling connection to Spring Boot
+* transaction rollback connection
+* best practices
+
+11. JDBC
+
+* why JDBC was introduced
+* DriverManager
+* Connection
+* Statement
+* PreparedStatement
+* ResultSet
+* SQL injection
+* transaction commit/rollback
+* connection pooling concept
+* JDBC vs JPA
+
+12. Modern Java Features
+
+* Java 8 features revision
+* Java 9 factory methods
+* Java 10 var
+* Java 11 useful methods
+* Java 14 switch expression
+* Java 16 records
+* Java 17 sealed classes
+* Java 21 virtual threads intro
+
+13. Design Principles and Patterns
+
+* SOLID
+* Singleton
+* Factory
+* Builder
+* Strategy
+* Template Method
+* Adapter
+* Observer
+* Repository pattern
+* DTO pattern
+* Service layer pattern
+* banking/backend examples
+
+After Core Java, continue with Backend Roadmap:
+
+14. Spring Core
+
+* IoC
+* DI
+* Bean lifecycle
+* scopes
+* annotations
+* ApplicationContext
+* BeanFactory
+* circular dependency
+* proxy concept
+
+15. Spring Boot
+
+* auto-configuration
+* starter dependencies
+* application.properties/yml
+* REST API
+* controller
+* service
+* repository
+* validation
+* exception handling
+* profiles
+* actuator
+
+16. Spring Data JPA / Hibernate
+
+* entity
+* repository
+* JPQL
+* native query
+* lazy vs eager loading
+* N+1 problem
+* first-level cache
+* second-level cache intro
+* transaction management
+* optimistic locking
+* pessimistic locking
+
+17. SQL and Database
+
+* joins
+* indexes
+* normalization
+* transactions
+* isolation levels
+* deadlocks
+* query optimization
+* explain plan
+* stored procedure basics
+* pagination
+
+18. Microservices
+
+* why microservices
+* monolith vs microservices
+* service discovery
+* API Gateway
+* config server
+* inter-service communication
+* REST
+* Feign client
+* circuit breaker
+* retry
+* rate limiting
+* distributed tracing
+* centralized logging
+
+19. Kafka / Messaging
+
+* producer
+* consumer
+* topic
+* partition
+* offset
+* consumer group
+* retry
+* dead letter topic
+* ordering
+* idempotency
+* banking transaction event examples
+
+20. Redis / Caching
+
+* cache-aside pattern
+* TTL
+* eviction policies
+* distributed cache
+* session cache
+* rate limiting use case
+
+21. Docker and Kubernetes Basics
+
+* Dockerfile
+* image
+* container
+* docker-compose
+* pod
+* deployment
+* service
+* configmap
+* secret
+* basic deployment flow
+
+22. System Design
+
+* scalability
+* load balancer
+* caching
+* database scaling
+* message queues
+* rate limiter
+* id generation
+* payment system design
+* banking transaction system design
+* audit logging
+* reconciliation system
+* notification system
+
+23. DSA for Java Interviews
+
+* arrays
+* strings
+* linked list
+* stack
+* queue
+* hash map
+* hash set
+* two pointer
+* sliding window
+* recursion
+* binary search
+* trees
+* heaps
+* graphs basics
+* top interview patterns
+
+Teach every topic with:
+
+* why introduced
+* what problem it solved
+* internals
+* memory view wherever applicable
+* banking/backend examples
+* production issues
+* interview answers
+* output questions
+* connection to Spring Boot, microservices, and system design
