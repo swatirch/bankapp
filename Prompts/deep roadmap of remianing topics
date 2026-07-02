@@ -1,0 +1,227 @@
+1. Multithreading — currently ongoing
+
+This is very important for interviews.
+
+Remaining in Multithreading:
+
+Thread class
+Runnable
+Callable
+Thread lifecycle
+sleep vs wait
+join
+yield
+synchronized
+object lock vs class lock
+race condition
+deadlock
+volatile
+atomic variables
+wait/notify/notifyAll
+ExecutorService
+ThreadPool
+Future
+CompletableFuture
+ReentrantLock
+CountDownLatch
+CyclicBarrier
+Semaphore
+BlockingQueue
+ConcurrentHashMap deep
+producer-consumer
+interview traps
+
+This is one of the highest priority topics.
+
+2. Generics
+
+After Multithreading, we planned to do:
+
+why generics were introduced
+raw type problem
+type safety
+generic classes
+generic methods
+bounded types
+wildcards
+? extends
+? super
+PECS rule
+type erasure
+generics with collections
+interview traps
+3. Functional Java / Java 8
+
+This is also very important.
+
+functional interfaces
+Predicate
+Consumer
+Supplier
+Function
+BiFunction
+lambda expressions
+method references
+constructor references
+default methods
+static methods in interfaces
+4. Streams API
+
+Very important for modern Java interviews.
+
+why streams were introduced
+stream vs collection
+intermediate operations
+terminal operations
+map
+filter
+flatMap
+distinct
+sorted
+limit
+skip
+collect
+Collectors.toList
+groupingBy
+partitioningBy
+joining
+counting
+mapping
+reducing
+parallel streams
+stream interview traps
+output questions
+5. Optional
+why Optional was introduced
+Optional.of
+Optional.ofNullable
+Optional.empty
+isPresent
+ifPresent
+orElse
+orElseGet
+orElseThrow
+Optional traps
+why not use Optional everywhere
+6. Java I/O and NIO
+
+Interview-level only, not too much depth.
+
+File
+InputStream / OutputStream
+Reader / Writer
+BufferedReader
+BufferedWriter
+FileReader
+FileWriter
+NIO basics
+Path
+Files
+file handling interview questions
+7. Serialization
+what is serialization
+why used
+Serializable
+serialVersionUID
+transient keyword
+static fields in serialization
+inheritance in serialization
+serialization traps
+why serialization is risky
+8. Date and Time API
+old Date/Calendar problems
+LocalDate
+LocalTime
+LocalDateTime
+ZonedDateTime
+Instant
+Period
+Duration
+formatting/parsing
+interview questions
+9. Utility APIs
+
+Only practical/interview level.
+
+Objects
+Arrays
+Collections utility class
+Comparator utilities
+StringJoiner
+UUID
+Random / ThreadLocalRandom
+10. JVM Internals Deep
+
+We have done basics, but deep JVM is still remaining.
+
+class loading deep
+class loader hierarchy
+linking
+initialization
+method area / metaspace
+heap
+stack
+PC register
+native method stack
+GC roots
+garbage collectors
+minor GC / major GC / full GC
+memory leaks
+OutOfMemoryError
+StackOverflowError
+JIT compiler
+interview-level JVM answers
+11. Advanced Exception Handling
+
+We have covered basics, but remaining:
+
+exception propagation
+suppressed exceptions
+exception handling in streams
+exception handling in multithreading
+best practices
+banking production examples
+interview traps
+12. JDBC
+
+This is technically Core/Advanced Java and useful for backend interviews.
+
+JDBC architecture
+DriverManager
+Connection
+Statement
+PreparedStatement
+CallableStatement
+ResultSet
+transactions
+commit/rollback
+batch processing
+SQL injection prevention
+connection pooling basics
+13. Modern Java Features
+
+Selective only.
+
+Java 9 to Java 21 important features
+var
+records
+sealed classes
+switch expression
+text blocks
+pattern matching
+virtual threads basics
+interview relevance
+14. Design Principles and Patterns
+
+Not pure Core Java, but important for Java backend interviews.
+
+SOLID
+Singleton
+Factory
+Builder
+Strategy
+Template Method
+Observer
+immutability pattern
+DTO/entity/service/repository separation
+where used in Spring Boot
