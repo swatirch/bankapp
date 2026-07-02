@@ -225,3 +225,24 @@ Observer
 immutability pattern
 DTO/entity/service/repository separation
 where used in Spring Boot
+
+
+
+
+
+Java 8 features
+Functional interfaces
+Lambda expressions
+Method references
+Streams API
+Collectors
+Optional
+Date and Time API
+Default/static methods in interfaces
+CompletableFuture basics
+Medium depth
+Java 9 factory methods
+Java 11 useful methods
+Java 16 records
+Java 17 sealed classes
+Java 21 virtual threads intro
